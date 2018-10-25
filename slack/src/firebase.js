@@ -2,8 +2,6 @@ import firebase from 'firebase/app';
 import "firebase/auth";
 import "firebase/database";
 import "firebase/storage";
-
-
 var config = {
     apiKey: "AIzaSyCZSzCQzVb2q2VQ3RtbsYqAXKZ0A29wbMM",
     authDomain: "react-slack-clone-48a01.firebaseapp.com",
@@ -13,3 +11,5 @@ var config = {
     messagingSenderId: "72938984846"
   };
 firebase.initializeApp(config);
+
+export defaut firebase;
