@@ -1,10 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
 import App from './components/App';
 import Register from './components/Auth/Register';
 import Login from './components/Auth/Login';
 import * as serviceWorker from './serviceWorker';
+
+import 'semantic-ui-css/semantic.min.css';
 
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 

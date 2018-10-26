@@ -12,4 +12,4 @@ var config = {
   };
 firebase.initializeApp(config);
 
-export defaut firebase;
+export default firebase;
