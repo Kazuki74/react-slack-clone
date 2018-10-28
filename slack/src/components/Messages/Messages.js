@@ -9,7 +9,7 @@ class Messages extends React.Component {
             <React.Fragment>
                 <MessagesHeader />
                 <Segment>
-                    <Comment.Group>
+                    <Comment.Group className="messages">
                         {/* Messages */}
                     </Comment.Group>
                 </Segment>
