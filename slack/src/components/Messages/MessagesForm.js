@@ -1,10 +1,15 @@
 import React from 'react';
 import { Segment, Button, Input } from 'semantic-ui-react';
+import uuidv4 from 'uuid/v4';
 import FileModal from './FileModal';
 import firebase from '../../firebase';
 
 class MessageForm extends React.Component {
     state = {
+        percentUploaded: 0,
+        uploadState: '',
+        uploadTask: null,
+        storageRef: firebase.storage().ref(),
         message: '',
         channel: this.props.currentChannel,
         loading: false,
@@ -19,7 +24,7 @@ class MessageForm extends React.Component {
         })
     }
 
-    createMessage = () => {
+    createMessage = (fileUrl = null) => {
         const message = {
             timestamp: firebase.database.ServerValue.TIMESTAMP ,
             user: {
@@ -27,7 +32,11 @@ class MessageForm extends React.Component {
                 name: this.state.user.displayName,
                 avatar: this.state.user.photoURL
             },
-            content: this.state.message
+        }
+        if (fileUrl !== null) {
+            message['image'] = fileUrl;
+        } else {
+            message['content'] = this.state.message;
         }
         return message;
     }
@@ -70,7 +79,56 @@ class MessageForm extends React.Component {
     closeModal = () => this.setState({ modal: false });
 
     upLoadFile = (file, metadata) => {
-        console.log(file, metadata);
+        const pathToUpload = this.state.channel.id;
+        const ref = this.props.messagesRef;
+        const filePath = `chat/public/${uuidv4()}.jpg`;
+        this.setState({
+            uploadState: 'uploading',
+            uploadTask: this.state.storageRef.child(filePath).put(file, filePath)
+        }, 
+            () => {
+                this.state.uploadTask.on('state_changed', snap => {
+                    const percentUploaded = Math.round(( snap.bytesTransferred / snap.totalBytes ) * 100);
+                    this.setState({ percentUploaded });
+                })
+            },
+                err => {
+                    console.error(err);
+                    this.setState({
+                        errors: this.state.errors.concat(err),
+                        uploadState: 'error',
+                        uploadTask: null
+                    })
+                },
+                    () => {
+                        this.state.uploadTask.snapShot.ref.getDownloadURL().then(downloadURL => {
+                            this.sendFileMessages(downloadURL, ref, pathToUpload)
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            this.setState({
+                                errors: this.state.errors.concat(err),
+                                uploadState: 'error',
+                                uploadTask: null
+                            })
+                        })
+                    }
+        )
+    }
+
+    sendFileMessages = (fileUrl, ref, pathToUpload) => {
+        ref.child(pathToUpload)
+            .push()
+            .set(this.createMessage(fileUrl))
+            .then(() => {
+                this.setState({ uploadState: 'done'} );
+            })
+            .catch( err => {
+                console.log(err);
+                this.setState({
+                    errors: this.state.errors.concat(err)
+                })
+            })
     }
 
     render () {
