@@ -4,7 +4,6 @@ import { Segment, Header, Icon, Input } from 'semantic-ui-react';
 class MessagesHeader extends React.Component {
     render() {
         const { channelName, numUniqueUsers, handleSearchChange, searchLoading, isPrivateChannel } = this.props;
-        console.log(isPrivateChannel)
         return (
             <Segment clearing>
                 {/* Channel Info */}
