@@ -93,7 +93,7 @@ class Messages extends React.Component {
         }, 1000)
     };
 
-    displayChannelName = channel => channel ? `#${channel.name}` : '';
+    displayChannelName = channel => channel ? `#${channel.name}` : '#unknown';
 
     render() {
         const { messagesRef, channel, user, messages, numUniqueUsers, searchTerm, searchResults, searchLoading } = this.state;
