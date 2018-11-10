@@ -10,7 +10,14 @@ class UserPanel extends React.Component {
         modal: false,
         previewImage: '',
         croppedImage: '',
-        blob: ''
+        uploadedCroppedImage: '',
+        blob: '',
+        storageRef: firebase.storage().ref(),
+        userRef: firebase.auth().currentUser,
+        usersRef: firebase.database().ref('users'),
+        metadata: {
+            contentType: 'image/jpeg'
+        }
     }
 
     dropdownOptions = () => [
@@ -63,6 +70,42 @@ class UserPanel extends React.Component {
                 })
             })
         }
+    }
+
+    uploadCroppedImage = () => {
+        const { storageRef, userRef, metadata, blob } = this.state;
+        storageRef
+            .child(`avatars/user-${userRef.uid}`)
+            .put(blob, metadata)
+            .then(snap => {
+                snap.ref.getDownloadURL().then(downloadURL => {
+                    this.setState({ uploadedCroppedImage: downloadURL }, () => 
+                    this.changeAvatar())
+                })
+            })
+    }
+
+    changeAvatar = () => {
+        this.state.userRef
+            .updateProfile({
+                photoURL: this.state.uploadedCroppedImage
+            })
+            .then(() => {
+                console.log('PhotoURL Updated!');
+                this.closeModal();
+            })
+            .catch(err => {
+                console.log(err);
+            })
+        this.state.usersRef
+            .child(this.state.user.uid)
+            .update( {avatar: this.state.uploadedCroppedImage} )
+            .then(() => {
+                console.log('User Avatar Changed!')
+            })
+            .catch(err => {
+                console.log(err);
+            })
     }
 
     render() {
@@ -129,7 +172,7 @@ class UserPanel extends React.Component {
                             </Grid>
                         </Modal.Content>
                         <Modal.Actions>
-                            {croppedImage && <Button color="green" inverted>
+                            {croppedImage && <Button color="green" inverted onClick={this.uploadCroppedImage}>
                                 <Icon name="save"/> Change Avatar
                             </Button>}
                             <Button color="green" inverted onClick={this.handleCropImage}>
