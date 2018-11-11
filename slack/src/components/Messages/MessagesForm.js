@@ -11,6 +11,7 @@ class MessageForm extends React.Component {
         uploadState: '',
         uploadTask: null,
         storageRef: firebase.storage().ref(),
+        typingRef: firebase.database().ref('typing'),
         message: '',
         channel: this.props.currentChannel,
         loading: false,
@@ -44,7 +45,7 @@ class MessageForm extends React.Component {
 
     sendMessage = () => {
         const { getMessagesRef } = this.props;
-        const { message, channel } = this.state;
+        const { message, channel, user, typingRef } = this.state;
         if (message) {
             this.setState({ loading: true });
             getMessagesRef()
@@ -58,6 +59,10 @@ class MessageForm extends React.Component {
                         message: '',
                         errors: []
                     })
+                    typingRef
+                        .child(channel.id)
+                        .child(user.uid)
+                        .remove();
                 })
                 .catch((err) => {
                     this.setState({
@@ -146,6 +151,21 @@ class MessageForm extends React.Component {
             })
     }
 
+    handleKeyDown = () => {
+        const { message, channel, typingRef, user } = this.state;
+        if(message) {
+            typingRef
+                .child(channel.id)
+                .child(user.uid)
+                .set(user.displayName)
+        } else {
+            typingRef
+                .child(channel.id)
+                .child(user.uid)
+                .remove();
+        }
+    }
+
     render () {
         const { errors, message, loading, modal, percentUploaded, uploadState,  } = this.state;
         return (
@@ -155,6 +175,7 @@ class MessageForm extends React.Component {
                     name="message"
                     value={message}
                     onChange={this.handleChange}
+                    onKeyDown={this.handleKeyDown}
                     style={{ marginBottom: '0.7em' }}
                     label={ <Button icon={"add"} />}
                     labelPosition="left"
