@@ -30,7 +30,6 @@ class Messages extends React.Component {
             this.addListener(channel.id);
             this.addUserStarsListener(channel.id, user.uid);
         }
-        console.log(this.state.messages);
     }
 
     addListener = channelId => {
@@ -181,7 +180,6 @@ class Messages extends React.Component {
 
     render() {
         const { messagesRef, channel, user, messages, numUniqueUsers, searchTerm, searchResults, searchLoading, privateChannel, isChannelStarred } = this.state;
-        console.log(messages);
         return (
             <React.Fragment>
                 <MessagesHeader
