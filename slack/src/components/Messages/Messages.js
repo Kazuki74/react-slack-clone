@@ -29,12 +29,22 @@ class Messages extends React.Component {
         connectedRef: firebase.database().ref(".info/connected")
     }
 
-    componentDidMount = () => {
+    componentDidMount() {
         const { channel, user } = this.state;
         if ( channel && user ) {
             this.addListener(channel.id);
             this.addUserStarsListener(channel.id, user.uid);
         }
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if(this.messagesEnd) {
+            this.scrollToBottom();
+        }
+    }
+
+    scrollToBottom = () => {
+        this.messagesEnd.scrollIntoView({ behavior: "smooth"});
     }
 
     addListener = channelId => {
@@ -257,6 +267,7 @@ class Messages extends React.Component {
                     <Comment.Group className="messages">
                         {searchTerm ? this.displayMessages(searchResults) : this.displayMessages(messages)}
                         {this.displayTypingUsers(typingUsers)}
+                        <div ref={node => (this.messagesEnd = node)}></div>
                     </Comment.Group>
                 </Segment>
                 <MessagesForm 
